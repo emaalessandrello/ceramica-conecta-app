@@ -1,0 +1,85 @@
+🚀 CERÁMICA CONECTA - INICIO RÁPIDO
+
+📍 PASO 1: Abrir Terminal
+===============================
+Abre terminal en esta carpeta (ceramica-conecta-app/)
+
+
+📍 PASO 2: Inicializar Git
+===============================
+git init
+git add .
+git commit -m "initial: project structure"
+
+
+📍 PASO 3: Agregar a GitHub
+===============================
+git remote add origin https://github.com/emaalessandrello/ceramica-conecta-app.git
+git branch -M main
+git push -u origin main
+
+
+📍 PASO 4: Setup Backend
+===============================
+cd backend
+
+# Crear archivo .env
+cp .env.example .env
+
+# Editar .env en editor de texto:
+# - DATABASE_URL = tu conexión a PostgreSQL
+# - JWT_SECRET = tu secret
+# - etc.
+
+# Instalar dependencias
+npm install
+
+# Crear BD y migraciones
+npx prisma migrate dev --name init
+
+# Iniciar servidor
+npm run dev
+
+✅ Backend corre en http://localhost:3000
+
+
+📍 PASO 5: Setup Frontend (en otra terminal)
+===============================
+cd frontend
+
+# Crear archivo .env.local
+cp .env.example .env.local
+
+# Instalar dependencias
+npm install
+
+# Iniciar dev server
+npm run dev
+
+✅ Frontend corre en http://localhost:5173
+
+
+📍 PASO 6: Verificar
+===============================
+- Abre http://localhost:5173 en navegador
+- Deberías ver página de login
+- Email: admin@ceramicaconecta.com
+- Password: admin123
+
+
+❓ ¿PROBLEMAS?
+===============================
+- Ver INSTRUCCIONES_GITHUB.md para troubleshooting
+- Ver docs/04_GUIA_INICIO_RAPIDO.md para más detalles
+
+
+📚 DOCUMENTACIÓN
+===============================
+/docs/01_ARQUITECTURA_GENERAL.md - Visión general
+/docs/02_MODELO_DE_DATOS.md - Tablas y relaciones
+/docs/03_API_ENDPOINTS.md - Rutas de la API
+/docs/04_GUIA_INICIO_RAPIDO.md - Setup detallado
+/docs/05_FLUJOS_SIMPLIFICADOS.md - Cómo funciona
+
+
+¡Listo! Ahora seguir las instrucciones de cada PASO.

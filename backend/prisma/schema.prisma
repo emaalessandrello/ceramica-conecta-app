@@ -1,0 +1,203 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// USERS
+// ============================================================================
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  name      String
+  role      String    @default("admin") // admin, viewer
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("users")
+}
+
+// ============================================================================
+// PRODUCTS
+// ============================================================================
+
+model Product {
+  id              String   @id @default(cuid())
+  codeKimiker     String   @unique @map("code_kimiker")
+  nameCC          String   @map("name_cc")
+  nameKimiker     String?  @map("name_kimiker")
+  category        String?
+  formats         String[] // JSON array: ["10g", "100g", "500g", "1kg"]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  prices          Price[]
+  competitorPrices CompetitorPrice[]
+  marginHistory   MarginHistory[]
+
+  @@index([codeKimiker])
+  @@map("products")
+}
+
+// ============================================================================
+// FORMATS
+// ============================================================================
+
+model Format {
+  id          String   @id @default(cuid())
+  name        String   @unique // "10g", "100g", "500g", "1kg"
+  grams       Int
+  kgFraction  Decimal  @map("kg_fraction") // 0.01, 0.1, 0.5, 1.0
+  description String?
+  createdAt   DateTime @default(now())
+
+  // Relations
+  prices      Price[]
+  competitorPrices CompetitorPrice[]
+  discounts   VolumeDiscount[]
+  marginHistory MarginHistory[]
+
+  @@map("formats")
+}
+
+// ============================================================================
+// PRICES
+// ============================================================================
+
+model Price {
+  id                    String    @id @default(cuid())
+  productId             String    @map("product_id")
+  formatId              String    @map("format_id")
+  usdPerKg              Decimal   @map("usd_per_kg")
+  arsBasePrice          Decimal   @map("ars_base_price")
+  arsPriceWithDiscount  Decimal?  @map("ars_price_with_discount")
+  marginPercentage      Decimal?  @map("margin_percentage")
+  costPlusIvaEnvio      Decimal?  @map("cost_plus_iva_envio")
+  isCustomPrice         Boolean   @default(false) @map("is_custom_price")
+  dateFrozen            DateTime? @map("date_frozen")
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  // Relations
+  product               Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  format                Format    @relation(fields: [formatId], references: [id])
+  marginHistory         MarginHistory[]
+
+  @@unique([productId, formatId])
+  @@index([productId])
+  @@index([formatId])
+  @@map("prices")
+}
+
+// ============================================================================
+// COMPETITORS
+// ============================================================================
+
+model Competitor {
+  id              String   @id @default(cuid())
+  name            String   @unique
+  region          String?
+  isMayorista     Boolean  @default(false) @map("is_mayorista")
+  priorityRank    Int      @default(0) @map("priority_rank")
+  website         String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  prices          CompetitorPrice[]
+
+  @@map("competitors")
+}
+
+// ============================================================================
+// COMPETITOR_PRICES
+// ============================================================================
+
+model CompetitorPrice {
+  id                String    @id @default(cuid())
+  competitorId      String    @map("competitor_id")
+  productId         String    @map("product_id")
+  formatId          String    @map("format_id")
+  competitorCode    String?   @map("competitor_code")
+  priceArs          Decimal   @map("price_ars")
+  lastUpdated       DateTime  @default(now()) @map("last_updated")
+  dataSource        String    @default("manual") @map("data_source") // manual, scrape, api
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  competitor        Competitor @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+  product           Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  format            Format     @relation(fields: [formatId], references: [id])
+
+  @@unique([competitorId, productId, formatId])
+  @@index([competitorId])
+  @@index([productId])
+  @@map("competitor_prices")
+}
+
+// ============================================================================
+// VOLUME_DISCOUNTS
+// ============================================================================
+
+model VolumeDiscount {
+  id                  String   @id @default(cuid())
+  formatId            String   @map("format_id")
+  minQuantity         Int      @map("min_quantity")
+  discountPercentage  Decimal  @map("discount_percentage")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  format              Format   @relation(fields: [formatId], references: [id])
+
+  @@map("volume_discounts")
+}
+
+// ============================================================================
+// MARGIN_HISTORY
+// ============================================================================
+
+model MarginHistory {
+  id                String    @id @default(cuid())
+  priceId           String    @map("price_id")
+  productId         String    @map("product_id")
+  formatId          String    @map("format_id")
+  marginPercentage  Decimal   @map("margin_percentage")
+  isCustom          Boolean   @default(false)
+  reason            String?
+  periodDate        DateTime  @map("period_date")
+  createdAt         DateTime  @default(now())
+
+  // Relations
+  price             Price     @relation(fields: [priceId], references: [id], onDelete: Cascade)
+  product           Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  format            Format    @relation(fields: [formatId], references: [id])
+
+  @@index([periodDate])
+  @@map("margin_history")
+}
+
+// ============================================================================
+// SYSTEM_CONFIG (Para almacenar TC y otros valores globales)
+// ============================================================================
+
+model SystemConfig {
+  id                String   @id @default(cuid())
+  key               String   @unique
+  value             String
+  description       String?
+  updatedAt         DateTime @updatedAt
+
+  @@map("system_config")
+}
