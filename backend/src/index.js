@@ -1,8 +1,11 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import 'express-async-errors'; // captura errores en handlers async y los manda al error middleware
 
 dotenv.config();
+
+import authRouter from './routes/auth.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -34,6 +37,9 @@ app.get('/api/v1', (req, res) => {
     }
   });
 });
+
+// Rutas de autenticación
+app.use('/api/v1/auth', authRouter);
 
 // Error handling
 app.use((err, req, res, next) => {

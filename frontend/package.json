@@ -10,20 +10,21 @@
     "lint": "eslint src"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.25.0",
+    "@tanstack/react-table": "^8.13.0",
+    "axios": "^1.6.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@tanstack/react-query": "^5.25.0",
-    "zustand": "^4.4.1",
+    "react-router-dom": "^7.14.1",
     "recharts": "^2.10.3",
-    "@tanstack/react-table": "^8.13.0",
-    "axios": "^1.6.2"
+    "zustand": "^4.4.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",
-    "vite": "^5.0.8",
-    "tailwindcss": "^3.4.1",
-    "postcss": "^8.4.32",
     "autoprefixer": "^10.4.16",
-    "eslint": "^8.55.0"
+    "eslint": "^8.55.0",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.4.1",
+    "vite": "^5.0.8"
   }
 }
